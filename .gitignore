@@ -1,0 +1,6 @@
+db.sqlite3
+.idea
+peoplePredict/__pycache__
+peoplePredict/view/__pycache__
+peoplePredict/model/__pycache__
+peoplePredict/database/__pycache__
