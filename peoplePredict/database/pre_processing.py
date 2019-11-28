@@ -59,10 +59,18 @@ if __name__ == '__main__':
     # find nearest poi
     longitude, latitude = build_location_list(poi_l)
     count = 0
+    cache = {}
     for location in people_l:
-        lng = float(location['lng_gcj02'])
-        lat = float(location['lat_gcj02'])
-        loc = found_nearest(longitude, latitude, lng, lat)
+        key = str(location['lng_gcj02']) + ',' + str(location['lat_gcj02'])
+        if key not in cache:
+            lng = location['lng_gcj02']
+            lat = location['lat_gcj02']
+            loc = found_nearest(longitude, latitude, lng, lat)
+            # update cache
+            cache[key] = loc
+        else:
+            loc = cache[key]
+
         location.update(poi_l[loc])
         location.pop('_id')
         count += 1
