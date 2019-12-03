@@ -19,6 +19,8 @@ def build_data_poi_feature():
         if count % 10000 == 0:
             print(count)
 
+    dao.close()
+
     np.savez('../data/poi_model/feature', x=x, y=y)
     return np.array(x), np.array(y)
 
@@ -35,6 +37,31 @@ def generate_batch(batch_size, data_x, data_y):
     return x, y
 
 
+def build_predict_data():
+    dao = Dao()
+    predict_row = set()
+
+    count = 0
+    for row in dao.read_data():
+        cur_x = (row['lng_gcj02'], row['lat_gcj02'], int(row['typecode']))
+        predict_row.add(cur_x)
+
+        count += 1
+        if count % 10000 == 0:
+            print(count)
+
+    x = []
+    for point in predict_row:
+        for day in range(1, 8):
+            for hour in [7, 12, 15, 20, 21]:
+                x.append([day, hour, point[0], point[1], point[2]])
+
+    x = np.array(x)
+    np.savez('../data/poi_model/predict', x=x)
+
+    return x
+
+
 if __name__ == '__main__':
-    x, y = build_data_poi_feature()
-    print(x.shape, y.shape)
+    x = build_predict_data()
+    print(x.shape)

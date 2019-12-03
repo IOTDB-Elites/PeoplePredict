@@ -54,9 +54,9 @@ class NN:
     def build_model(self):
         with self._graph.as_default():
             # 添加隐藏层1
-            l1 = self._add_layer("layer1", self.x, self.input_size, 64, activation_function=tf.relu)
+            l1 = self._add_layer("layer1", self.x, self.input_size, 64, activation_function=tf.nn.relu)
             # 添加隐藏层2
-            l2 = self._add_layer("layer2", l1, 64, 128, activation_function=tf.relu)
+            l2 = self._add_layer("layer2", l1, 64, 128, activation_function=tf.nn.relu)
             l2_drop = tf.nn.dropout(l2, self._keep_prob)
             # 添加输出层
             people_num = self._add_layer("layer3", l2_drop, 128, 1, activation_function=tf.identity)

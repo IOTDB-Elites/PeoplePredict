@@ -1,8 +1,9 @@
 from django.http import HttpResponse
 from peoplePredict.model.null_model import NullModel
+from peoplePredict.model.poi_model.poi_model import PoiModel
 import json
 
-models = {'null_model': NullModel()}
+models = {'null_model': NullModel(), 'poi_model': PoiModel()}
 
 
 def predict(request):

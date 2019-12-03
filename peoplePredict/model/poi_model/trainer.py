@@ -1,4 +1,4 @@
-from peoplePredict.model.poi_model.nn_model import NN
+from peoplePredict.model.poi_model.nn import NN
 from peoplePredict.model.util.data_to_poi_feature import build_data_poi_feature, generate_batch
 import tensorflow as tf
 import os

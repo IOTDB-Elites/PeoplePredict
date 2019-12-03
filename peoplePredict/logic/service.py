@@ -1,0 +1,43 @@
+# interface
+def get_map_data(hour, day):
+    pass
+
+
+def get_radius_data(lng, lat, hour, day, radius):
+    pass
+
+
+def get_point_data(lng, lat, hour, day):
+    pass
+
+
+# helper
+import math
+
+PI = 3.14159265
+EARTH_RADIUS = 6378137
+RAD = PI / 180.0
+DEGREE = (24901 * 1609) / 360.0
+
+
+# get around latitude and longitude
+def get_around(lat, lng, radius):
+    latitude = lat
+    longitude = lng
+    radius_mile = radius
+    # latitude
+    dpm_lat = 1 / DEGREE
+    radius_lat = dpm_lat * radius_mile
+    min_lat = latitude - radius_lat
+    max_lat = latitude + radius_lat
+    # longitude
+    mpd_lng = DEGREE * math.cos(latitude * (PI / 180))
+    dpm_lng = 1 / mpd_lng
+    radius_lng = dpm_lng * radius_mile
+    min_lng = longitude - radius_lng
+    max_lng = longitude + radius_lng
+
+    return min_lat, max_lat, min_lng, max_lng
+
+if __name__ == '__main__':
+    print(get_around(36.3, 103.49, 1400 * 1000))
