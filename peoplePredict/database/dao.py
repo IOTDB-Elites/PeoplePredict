@@ -12,9 +12,41 @@ class Dao:
     def read_data(self):
         return self.people_num_join_poi.find()
 
+    # insert into db_name, example is here
+    # ```
+    # DATABASE = 'your_name'
+    # dao = Dao()
+    # cache = []
+    # count = 0
+    #
+    # dao.clear_database(DATABASE)
+    # for row in your_data:
+    #     cache.append({'month': 10,
+    #                   'day': row[0],
+    #                   'hour': row[1],
+    #                   'lng_gcj02': row[2],
+    #                   'lat_gcj02': row[3],
+    #                   'value': row[4])})
+    #
+    #     if len(cache) == 100:
+    #         count += 100
+    #         dao.insert_many(DATABASE, cache)
+    #         cache.clear()
+    #         if count % 1000 == 0:
+    #             print(count)
+    #
+    # dao.close()
+    # ```
     def insert_many(self, db_name, data_list):
-        database = self.db[db_name]
-        database.insert_many(data_list)
+        self.db[db_name].insert_many(data_list)
+
+    # clear database
+    def clear_database(self, db_name):
+        self.db[db_name].delete_many({})
+
+    # read data from db_name
+    def read_predict_result(self, db_name):
+        return self.db[db_name].find()
 
     def close(self):
         self.conn.close()
@@ -23,14 +55,14 @@ class Dao:
 # just a example for reading data
 if __name__ == '__main__':
     dao = Dao()
-    month = set()
     count = 0
-    for i in dao.read_data():
+    for i in dao.read_predict_result('poi_model_result'):
         count += 1
-        month.add(i['month'])
+        if count % 1000:
+            print(i)
 
     # do not forget this
+    print(count)
     dao.close()
 
     print("total len: ", count)
-    print("month: ", month)

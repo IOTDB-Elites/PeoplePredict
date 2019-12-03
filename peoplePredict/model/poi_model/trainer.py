@@ -69,7 +69,7 @@ if __name__ == '__main__':
                     # print(y_label)
                     # print(_index)
 
-                    saver.save(sess, "./xkf_nn_model/nn", global_step=i)
+                    saver.save(sess, "../data/poi_model/nn_model/nn", global_step=i)
 
                 _, summary = sess.run([model.train_op, merged], feed_dict={model.x: x, model.y: y, model.keep_prob: 1})
                 writer.add_summary(summary, i)

@@ -57,6 +57,7 @@ def build_predict_data():
                 x.append([day, hour, point[0], point[1], point[2]])
 
     x = np.array(x)
+    # x -> [[day, hour, lng_gcj02, lat_gcj02, typecode],...]
     np.savez('../data/poi_model/predict', x=x)
 
     return x

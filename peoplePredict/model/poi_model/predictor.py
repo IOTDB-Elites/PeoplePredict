@@ -19,8 +19,6 @@ if __name__ == '__main__':
         print("No dump file! Reading from original file! Please wait... ")
         x = build_predict_data()
 
-    print(x.shape)
-    exit(-1)
     print("reading complete!")
     model = NN()
 
@@ -35,7 +33,7 @@ if __name__ == '__main__':
             # 保存参数所用的保存器
             saver = tf.train.Saver(max_to_keep=1)
             # get latest file
-            ckpt = tf.train.get_checkpoint_state('../data/poi_model/nn_model')
+            ckpt = tf.train.get_checkpoint_state('./xkf_nn_model')
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
             else:
@@ -45,26 +43,24 @@ if __name__ == '__main__':
             dao = Dao()
             cache = []
             count = 0
+
+            dao.clear_database(DATABASE)
             for row_x in x:
                 # val = 0
-                print(sess.run([model.result], feed_dict={model.x: x.reshape(1, x.shape[0]), model.keep_prob: 1}))
-                # cache.append({'month' : 10,
-                #               'day' : row_x[0],
-                #               'hour': row_x[1],
-                #               'lng_gcj02' : row_x[2],
-                #               'lat_gcj02' : row_x[3],
-                #               'value': val})
-                #
-                # if len(cache) == 100:
-                #     count += 100
-                #     dao.insert_many(DATABASE, cache)
-                #     cache.clear()
-                #     if count % 1000 == 0:
-                #         print(count)
+                val = sess.run \
+                    ([model.result], feed_dict={model.x: row_x.reshape(1, row_x.shape[0]), model.keep_prob: 1})[0][0]
+                cache.append({'month': 10,
+                              'day': row_x[0],
+                              'hour': row_x[1],
+                              'lng_gcj02': round(row_x[2], 3),
+                              'lat_gcj02': round(row_x[3], 3),
+                              'value': int(val)})
+
+                if len(cache) == 100:
+                    count += 100
+                    dao.insert_many(DATABASE, cache)
+                    cache.clear()
+                    if count % 1000 == 0:
+                        print(count)
 
             dao.close()
-
-
-
-
-

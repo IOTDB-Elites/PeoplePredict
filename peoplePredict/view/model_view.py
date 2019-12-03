@@ -23,3 +23,4 @@ def predict(request):
            'model': model.name,
            'result': model.predict(param)}
     return HttpResponse(json.dumps(res))
+
