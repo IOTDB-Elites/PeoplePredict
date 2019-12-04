@@ -66,5 +66,7 @@ if __name__ == '__main__':
                     cache.clear()
                     if count % 1000 == 0:
                         print(count)
+            if len(cache) != 0:
+                dao.insert_many(DATABASE, cache)
 
             dao.close()

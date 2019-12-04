@@ -38,7 +38,9 @@ class Dao:
     #         cache.clear()
     #         if count % 1000 == 0:
     #             print(count)
-    #
+    #             if len(cache) != 0:
+    # if len(cache) != 0:
+    #     dao.insert_many(DATABASE, cache)
     # dao.close()
     # ```
     def insert_many(self, db_name, data_list):
@@ -62,10 +64,11 @@ class Dao:
 if __name__ == '__main__':
     dao = Dao()
     count = 0
-    for i in dao.read_data():
+    for i in dao.read_data({'lng_gcj02':108.788, 'lat_gcj02':34.225}):
         count += 1
         if count % 100000:
             print(i)
+            break
 
     # do not forget this
     print(count)

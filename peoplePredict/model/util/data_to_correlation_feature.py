@@ -13,7 +13,7 @@ def to_loc(month, day):
 
 def build_matrix_in_hour(hour):
     dao = Dao()
-    # (lat, lng) -> [val]
+    # (lat, lng) -> {loc -> val}
     location_array = {}
 
     for row in dao.read_data({'hour': hour}):
