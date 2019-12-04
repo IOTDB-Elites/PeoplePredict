@@ -84,6 +84,8 @@ if __name__ == '__main__':
     cache = []
     count = 0
     for location in people_l:
+        location['lng_gcj02'] = round(location['lng_gcj02'], 3)
+        location['lat_gcj02'] = round(location['lat_gcj02'], 3)
         cache.append(location)
         if len(cache) == 100:
             people_num_join_poi.insert_many(cache)

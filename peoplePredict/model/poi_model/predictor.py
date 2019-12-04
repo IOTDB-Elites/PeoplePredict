@@ -7,7 +7,7 @@ import numpy as np
 
 ##
 
-MODEL_LOC = '../data/poi_model/nn_model/nn'
+MODEL_LOC = '../data/poi_model/nn_model'
 DATABASE = 'poi_model_result'
 weekday_map = {1: 24, 2: 25, 3: 26, 4: 27, 5: 28, 6: 29, 0: 30}
 
@@ -20,6 +20,7 @@ if __name__ == '__main__':
     else:
         print("No dump file! Reading from original file! Please wait... ")
         x = build_predict_data()
+
 
     print("reading complete!")
     model = NN()

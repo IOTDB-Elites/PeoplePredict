@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from peoplePredict.database.constant import port, uri, join_database
+import numpy as np
 
 
 class Dao:
@@ -9,8 +10,11 @@ class Dao:
         self.people_num_join_poi = self.db[join_database]
 
     # use cursor to read
-    def read_data(self):
-        return self.people_num_join_poi.find()
+    def read_data(self, filter=None):
+        if not filter:
+            return self.people_num_join_poi.find()
+
+        return self.people_num_join_poi.find(filter)
 
     # insert into db_name, example is here
     # ```
@@ -45,8 +49,10 @@ class Dao:
         self.db[db_name].delete_many({})
 
     # read data from db_name
-    def read_predict_result(self, db_name):
-        return self.db[db_name].find()
+    def read_predict_result(self, db_name, filter=None):
+        if not filter:
+            return self.db[db_name].find()
+        return self.db[db_name].find(filter)
 
     def close(self):
         self.conn.close()
@@ -58,7 +64,7 @@ if __name__ == '__main__':
     count = 0
     for i in dao.read_data():
         count += 1
-        if count % 1000:
+        if count % 100000:
             print(i)
 
     # do not forget this

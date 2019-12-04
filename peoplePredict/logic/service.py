@@ -1,13 +1,13 @@
 # interface
-def get_map_data(hour, day):
+def get_map_data(month, day, hour):
     pass
 
 
-def get_radius_data(lng, lat, hour, day, radius):
+def get_radius_data(month, day, hour, lng, lat, radius):
     pass
 
 
-def get_point_data(lng, lat, hour, day):
+def get_point_data(month, day, hour, lng, lat):
     pass
 
 
@@ -38,6 +38,7 @@ def get_around(lat, lng, radius):
     max_lng = longitude + radius_lng
 
     return min_lat, max_lat, min_lng, max_lng
+
 
 if __name__ == '__main__':
     print(get_around(108.913, 34.197, 10 * 1000))
