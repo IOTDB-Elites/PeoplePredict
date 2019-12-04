@@ -1,6 +1,13 @@
+import datetime
+
 from peoplePredict.database.dao import Dao
 import random
 import numpy as np
+
+
+def day_to_weekday(year, month, day):
+    d = datetime.date(year, month, day)
+    return d.weekday()
 
 
 def build_data_poi_feature():
@@ -10,7 +17,8 @@ def build_data_poi_feature():
 
     count = 0
     for row in dao.read_data():
-        cur_x = [row['day'], row['hour'], row['lng_gcj02'], row['lat_gcj02'], int(row['typecode'])]
+        cur_x = [day_to_weekday(row['year'], row['month'], row['day']), row['hour'],
+                 row['lng_gcj02'], row['lat_gcj02'], int(row['typecode'])]
 
         x.append(cur_x)
         y.append(row['value'])
@@ -52,7 +60,7 @@ def build_predict_data():
 
     x = []
     for point in predict_row:
-        for day in range(1, 8):
+        for day in (1, 2, 3, 4, 5, 6, 0):
             for hour in [7, 12, 15, 20, 21]:
                 x.append([day, hour, point[0], point[1], point[2]])
 

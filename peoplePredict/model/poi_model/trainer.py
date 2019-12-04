@@ -4,6 +4,7 @@ import tensorflow as tf
 import os
 import numpy as np
 
+MODEL_LOC = '../data/poi_model/nn_model/nn'
 training_batch_size = 256
 valid_batch_size = 256
 iteration = 100000
@@ -38,7 +39,7 @@ if __name__ == '__main__':
             # 保存参数所用的保存器
             saver = tf.train.Saver(max_to_keep=1)
             # get latest file
-            ckpt = tf.train.get_checkpoint_state('../data/poi_model/nn_model')
+            ckpt = tf.train.get_checkpoint_state(MODEL_LOC)
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
 
@@ -56,25 +57,11 @@ if __name__ == '__main__':
                     # train_accuracy = sess.run(accuracy, feed_dict={xs: x, ys: y})
                     valid_x, valid_y = generate_batch(model.valid_batch_size, train_x, train_y)
                     print("step:", i, "train:",
-                          sess.run([model.loss], feed_dict={model.x: x, model.y: y, model.keep_prob: 0.7}))
+                          sess.run([model.mean_square], feed_dict={model.x: x, model.y: y, model.keep_prob: 1}))
                     print("step:", "valid:",
-                          sess.run([model.loss], feed_dict={model.x: valid_x, model.y: valid_y, model.keep_prob: 1}))
-                    # valid_accuracy = sess.run(accuracy, feed_dict={xs: valid_x, ys: valid_y})
-                    # print("step %d, training accuracy %g" % (i, train_accuracy))
-                    # print("step %d, valid accuracy %g" % (i, valid_accuracy))
-                    #
-                    # y_label_result, y_true_result = sess.run([y_label, y_true], feed_dict={xs: valid_x, ys: valid_y})
-                    # print("f1_score", sk.metrics.f1_score(y_label_result, y_true_result, average = "weighted"))
-                    # exit(0)
-                    # print(y_label)
-                    # print(_index)
+                          sess.run([model.mean_square], feed_dict={model.x: valid_x, model.y: valid_y, model.keep_prob: 1}))
 
-                    saver.save(sess, "../data/poi_model/nn_model/nn", global_step=i)
+                    saver.save(sess, MODEL_LOC, global_step=i)
 
-                _, summary = sess.run([model.train_op, merged], feed_dict={model.x: x, model.y: y, model.keep_prob: 1})
+                _, summary = sess.run([model.train_op, merged], feed_dict={model.x: x, model.y: y, model.keep_prob: 0.7})
                 writer.add_summary(summary, i)
-                _, summary = sess.run([model.train_op, merged],
-                                      feed_dict={model.x: x_valid, model.y: y_valid, model.keep_prob: 1})
-                writer.add_summary(summary, i)
-                # _, summary = sess.run([model.train_op, merged], feed_dict={model.x: x_test, model.y: y_test, model.keep_prob: 1})
-                # writer.add_summary(summary, i)

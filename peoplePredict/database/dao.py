@@ -56,7 +56,7 @@ class Dao:
 if __name__ == '__main__':
     dao = Dao()
     count = 0
-    for i in dao.read_predict_result('poi_model_result'):
+    for i in dao.read_data():
         count += 1
         if count % 1000:
             print(i)

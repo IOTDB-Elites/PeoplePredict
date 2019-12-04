@@ -40,4 +40,4 @@ def get_around(lat, lng, radius):
     return min_lat, max_lat, min_lng, max_lng
 
 if __name__ == '__main__':
-    print(get_around(36.3, 103.49, 1400 * 1000))
+    print(get_around(108.913, 34.197, 10 * 1000))

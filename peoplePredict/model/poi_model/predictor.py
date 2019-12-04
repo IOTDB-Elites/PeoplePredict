@@ -7,7 +7,9 @@ import numpy as np
 
 ##
 
+MODEL_LOC = '../data/poi_model/nn_model/nn'
 DATABASE = 'poi_model_result'
+weekday_map = {1: 24, 2: 25, 3: 26, 4: 27, 5: 28, 6: 29, 0: 30}
 
 if __name__ == '__main__':
     print("reading data from training set...")
@@ -33,7 +35,7 @@ if __name__ == '__main__':
             # 保存参数所用的保存器
             saver = tf.train.Saver(max_to_keep=1)
             # get latest file
-            ckpt = tf.train.get_checkpoint_state('./xkf_nn_model')
+            ckpt = tf.train.get_checkpoint_state(MODEL_LOC)
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
             else:
@@ -49,8 +51,9 @@ if __name__ == '__main__':
                 # val = 0
                 val = sess.run \
                     ([model.result], feed_dict={model.x: row_x.reshape(1, row_x.shape[0]), model.keep_prob: 1})[0][0]
-                cache.append({'month': 10,
-                              'day': row_x[0],
+                cache.append({'year': 2019,
+                              'month': 9,
+                              'day': weekday_map[row_x[0]],
                               'hour': row_x[1],
                               'lng_gcj02': round(row_x[2], 3),
                               'lat_gcj02': round(row_x[3], 3),

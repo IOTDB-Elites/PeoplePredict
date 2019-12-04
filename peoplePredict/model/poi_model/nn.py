@@ -6,8 +6,7 @@ class NN:
         self.training_batch_size = 256
         self.valid_batch_size = 256
         self.iteration = 100000
-        # embediing size = 128
-        # accu_size = 203
+
         self.input_size = 5
         self.output_size = 1
         # 图
@@ -54,12 +53,12 @@ class NN:
     def build_model(self):
         with self._graph.as_default():
             # 添加隐藏层1
-            l1 = self._add_layer("layer1", self.x, self.input_size, 64, activation_function=tf.nn.relu)
+            l1 = self._add_layer("layer1", self.x, self.input_size, 32, activation_function=tf.nn.relu)
             # 添加隐藏层2
-            l2 = self._add_layer("layer2", l1, 64, 128, activation_function=tf.nn.relu)
+            l2 = self._add_layer("layer2", l1, 32, 16, activation_function=tf.nn.relu)
             l2_drop = tf.nn.dropout(l2, self._keep_prob)
             # 添加输出层
-            people_num = self._add_layer("layer3", l2_drop, 128, 1, activation_function=tf.identity)
+            people_num = self._add_layer("layer3", l2_drop, 16, 1, activation_function=tf.identity)
 
         return people_num
 
@@ -69,6 +68,7 @@ class NN:
             mean_square = tf.reduce_mean(tf.square(self.y - self.people_num))
             reg_term = self._build_regular_term()
             loss = mean_square + reg_term
+            self._mean_square = mean_square
 
         return loss
 
@@ -115,3 +115,7 @@ class NN:
     @property
     def result(self):
         return self._result
+
+    @property
+    def mean_square(self):
+        return self._mean_square
