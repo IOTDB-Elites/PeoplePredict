@@ -38,8 +38,8 @@ if __name__ == '__main__':
     count = 0
     start_time = time.time()
     for i in range(matrix.shape[0]):
-        lng_gcj02 = location[i].split(",")[0]
-        lat_gcj02 = location[i].split(",")[1]
+        lng_gcj02 = round(float(location[i].split(",")[0]), 3)
+        lat_gcj02 = round(float(location[i].split(",")[1]), 3)
         try:
             predict_data = arima_predict(matrix[i], 2, 1, 5)[0]
             for j in range(25):
@@ -59,6 +59,7 @@ if __name__ == '__main__':
                             'lng_gcj02': lng_gcj02,
                             'lat_gcj02': lat_gcj02,
                             'value': int(matrix[i][j-25])})
+
         if len(res) == 100:
             count += 100
             dao.insert_many(DATABASE, res)
