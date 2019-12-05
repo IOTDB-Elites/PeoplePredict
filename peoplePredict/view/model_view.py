@@ -1,9 +1,11 @@
 from django.http import HttpResponse
-from peoplePredict.model.null_model import NullModel
-from peoplePredict.model.poi_model.poi_model import PoiModel
 import json
 
-models = {'null_model': NullModel(), 'poi_model': PoiModel()}
+from peoplePredict.logic import service
+
+GET_MAP_DATA_PARAMS = ['month', 'day', 'hour']
+GET_RADIUS_DATA_PARAMS = ['month', 'day', 'hour', 'lng', 'lat', 'radius']
+GET_POINT_DATA_PARAMS = ['month', 'day', 'hour', 'lng', 'lat']
 
 
 def predict(request):
@@ -13,14 +15,49 @@ def predict(request):
                'message': 'name parameter is not present in request'}
         return HttpResponse(json.dumps(res))
 
-    if param['name'] not in models:
-        res = {'success': False,
-               'message': "we don't have model called " + param['name']}
-        return HttpResponse(json.dumps(res))
+    return HttpResponse(json.dumps({}))
 
-    model = models[param['name']]
-    res = {'success': True,
-           'model': model.name,
-           'result': model.predict(param)}
+
+def get_map_data(request):
+    # check params
+    error_res = check_param(request, GET_MAP_DATA_PARAMS)
+    if error_res is not None:
+        return warp_to_response(error_res)
+
+    param = request.GET
+    return warp_to_response(service.get_map_data(int(param['month']), int(param['day']), int(param['hour'])))
+
+
+def get_radius_data(request):
+    # check params
+    error_res = check_param(request, GET_RADIUS_DATA_PARAMS)
+    if error_res is not None:
+        return warp_to_response(error_res)
+
+    param = request.GET
+    return warp_to_response(service.get_radius_data(int(param['month']), int(param['day']), int(param['hour']),
+                                                    float(param['lng']), float(param['lat']), float(param['radius'])))
+
+
+def get_point_data(request):
+    # check params
+    error_res = check_param(request, GET_POINT_DATA_PARAMS)
+    if error_res is not None:
+        return warp_to_response(error_res)
+
+    param = request.GET
+    return warp_to_response(service.get_point_data(int(param['month']), int(param['day']), int(param['hour']),
+                                                   float(param['lng']), float(param['lat'])))
+
+
+def check_param(request, params):
+    for param in params:
+        if param not in request.GET:
+            return {'success': False,
+                    'message': param + ' parameter is not present in request'}
+
+    return None
+
+
+def warp_to_response(res):
     return HttpResponse(json.dumps(res))
-

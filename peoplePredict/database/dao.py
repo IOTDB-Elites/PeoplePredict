@@ -51,7 +51,7 @@ class Dao:
         self.db[db_name].delete_many({})
 
     # read data from db_name
-    def read_predict_result(self, db_name, filter=None):
+    def read_data_from_target_databse(self, db_name, filter=None):
         if not filter:
             return self.db[db_name].find()
         return self.db[db_name].find(filter)

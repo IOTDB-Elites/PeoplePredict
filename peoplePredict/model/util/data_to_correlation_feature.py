@@ -45,6 +45,7 @@ def build_matrix_in_hour(hour):
     for i in range(len(res)):
         matrix[i] = np.array(res[i][1])
 
+    dao.close()
     return matrix, location
 
 
@@ -67,5 +68,9 @@ def build_matrix():
 
 
 if __name__ == '__main__':
-    m, l = build_matrix()
-    print(m[0].shape, len(l[0]), l[0][0])
+    a = np.array([0, 1, 0, 1])
+    b = np.array([1, 0, 1, 0])
+    print(np.corrcoef(a, b))
+
+    # m, l = build_matrix()
+    # print(m[1].shape, len(l[0]), l[0][0])
