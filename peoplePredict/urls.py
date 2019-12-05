@@ -20,4 +20,7 @@ from peoplePredict.view import model_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('example/', model_view.predict),
+    path('api/get_map_data/', model_view.get_map_data),
+    path('api/get_radius_data/', model_view.get_radius_data),
+    path('api/get_point_data/', model_view.get_point_data),
 ]

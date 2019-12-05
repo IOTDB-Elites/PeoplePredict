@@ -2,23 +2,24 @@ from peoplePredict.database.dao import Dao
 import numpy as np
 import os
 
-DUMP_FILE = '../data/correlation_model/matrix'
+DUMP_FILE = '../data/arima_model/matrix'
+
+hour_map = {7: 0, 12: 1, 15: 2, 20: 3, 21: 4}
 
 
-def to_loc(month, day):
+def to_loc(month, day, hour):
     if month == 8:
-        return day - 20
-    return 11 + day
+        return (day - 20) * 5 + hour_map[hour]
+    return (11 + day) * 5 + hour_map[hour]
 
 
-def build_matrix_in_hour(hour):
+def build_matrix_all_hours():
     dao = Dao()
-    # (lat, lng) -> {loc -> val}
     location_array = {}
 
-    for row in dao.read_data({'hour': hour}):
+    for row in dao.read_data():
         key = str(row['lng_gcj02']) + ',' + str(row['lat_gcj02'])
-        loc = to_loc(row['month'], row['day'])
+        loc = to_loc(row['month'], row['day'], row['hour'])
         if key in location_array:
             location_array[key][loc] = row['value']
         else:
@@ -30,7 +31,7 @@ def build_matrix_in_hour(hour):
     for key in location_array:
         cur_map = location_array[key]
         cur_array = []
-        for i in range(35):
+        for i in range(35*5):
             if i in cur_map:
                 cur_array.append(cur_map[i])
             else:
@@ -38,14 +39,10 @@ def build_matrix_in_hour(hour):
         res.append((key, cur_array))
         location.append(key)
 
-    res.sort(key=lambda x: x[0])
-    location.sort()
-
-    matrix = np.zeros((len(res), 35))
+    matrix = np.zeros((len(res), 35*5))
     for i in range(len(res)):
         matrix[i] = np.array(res[i][1])
 
-    dao.close()
     return matrix, location
 
 
@@ -55,22 +52,15 @@ def build_matrix():
         return zip_file['matrix'], zip_file['location']
 
     print("we don't have dump data. build from script, please wait...")
-    m_list = []
-    loc_list = []
-    for hour in [7, 12, 15, 20, 21]:
-        matrix, location = build_matrix_in_hour(hour)
-        m_list.append(matrix)
-        loc_list.append(location)
-        print(hour, " done!")
 
-    np.savez(DUMP_FILE, matrix=m_list, location=loc_list)
-    return m_list, loc_list
+    matrix, location = build_matrix_all_hours()
+
+    print("done!")
+
+    np.savez(DUMP_FILE, matrix=matrix, location=location)
+    return matrix, location
 
 
 if __name__ == '__main__':
-    a = np.array([0, 1, 0, 1])
-    b = np.array([1, 0, 1, 0])
-    print(np.corrcoef(a, b))
-
-    # m, l = build_matrix()
-    # print(m[1].shape, len(l[0]), l[0][0])
+    m, l = build_matrix()
+    print(m[8888], len(l), l[0])
