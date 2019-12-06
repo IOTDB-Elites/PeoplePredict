@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from peoplePredict.database.constant import port, uri, join_database
+from peoplePredict.database.constant import port, uri, join_database, arima_database
 import numpy as np
 
 
@@ -7,7 +7,7 @@ class Dao:
     def __init__(self):
         self.conn = MongoClient(uri, port=port)
         self.db = self.conn.qh_area_forecast
-        self.people_num_join_poi = self.db[join_database]
+        self.people_num_join_poi = self.db[arima_database]
 
     # use cursor to read
     def read_data(self, filter=None):
@@ -64,11 +64,11 @@ class Dao:
 if __name__ == '__main__':
     dao = Dao()
     count = 0
-    for i in dao.read_data({'lng_gcj02':108.788, 'lat_gcj02':34.225}):
+    for i in dao.read_data():
         count += 1
-        if count % 100000:
+        if count % 1000:
             print(i)
-            break
+            # break
 
     # do not forget this
     print(count)
