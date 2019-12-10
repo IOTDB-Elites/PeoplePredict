@@ -6,3 +6,4 @@ uri = "mongodb://{}:{}@{}".format(username, password, host)
 people_num_database = 'hist_loc_unum'
 poi_database = 'XiAn_poi'
 join_database = 'people_num_join_poi'
+arima_database = 'arima_model_result'

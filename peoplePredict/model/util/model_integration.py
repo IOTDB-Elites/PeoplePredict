@@ -13,7 +13,7 @@ def build_key(row):
 
 
 def read_data_from_database(dao, ratio, res_map, database_name):
-    for row in dao.read_data_from_target_databse(database_name):
+    for row in dao.read_data_from_target_database(database_name):
         key = build_key(row)
         val = 0
         if key in res_map:

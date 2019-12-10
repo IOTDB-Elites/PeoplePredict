@@ -1,6 +1,5 @@
 from pymongo import MongoClient
 from peoplePredict.database.constant import port, uri, join_database
-import numpy as np
 
 
 class Dao:
@@ -50,7 +49,7 @@ class Dao:
         self.db[db_name].delete_many({})
 
     # read data from db_name
-    def read_data_from_target_databse(self, db_name, filter=None):
+    def read_data_from_target_database(self, db_name, filter=None):
         if not filter:
             return self.db[db_name].find()
         return self.db[db_name].find(filter)
