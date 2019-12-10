@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from peoplePredict.database.constant import port, uri, join_database
+from peoplePredict.database.constant import port, uri, join_database, poi_database, people_num_database
 
 
 class Dao:
@@ -46,6 +46,11 @@ class Dao:
 
     # clear database
     def clear_database(self, db_name):
+        # security check
+        if db_name == join_database or db_name == poi_database or db_name == people_num_database:
+            print("Delete raw database is forbidden")
+            exit(-1)
+
         self.db[db_name].delete_many({})
 
     # read data from db_name

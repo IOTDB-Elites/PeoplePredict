@@ -89,5 +89,5 @@ def current_data_integration():
 if __name__ == '__main__':
     print('begin integration')
     current_data_integration()
-    model_integration()
+    # model_integration()
     print('integration ends')

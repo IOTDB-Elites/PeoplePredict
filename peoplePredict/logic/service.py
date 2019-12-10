@@ -23,8 +23,8 @@ def get_map_data(month, day, hour):
     # if status == CURRENT:
     res = []
     for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
-                                                                       'day': day,
-                                                                       'hour': hour}):
+                                                                         'day': day,
+                                                                         'hour': hour}):
         res.append({'lng': row['lng_gcj02'], 'lat': row['lat_gcj02'], 'val': row['value']})
 
     return {'success': True,
@@ -42,12 +42,12 @@ def get_radius_data(month, day, hour, lng, lat, radius):
     min_lat, max_lat, min_lng, max_lng = get_around(lat, lng, radius)
     # if status == CURRENT:
     for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
-                                                                       'day': day,
-                                                                       'hour': hour,
-                                                                       'lng_gcj02': {'$gt': min_lng,
-                                                                                     '$lt': max_lng},
-                                                                       'lat_gcj02': {'$gt': min_lat,
-                                                                                     '$lt': max_lat}}):
+                                                                         'day': day,
+                                                                         'hour': hour,
+                                                                         'lng_gcj02': {'$gt': min_lng,
+                                                                                       '$lt': max_lng},
+                                                                         'lat_gcj02': {'$gt': min_lat,
+                                                                                       '$lt': max_lat}}):
         total_count += row['value']
 
     return {'success': True,
@@ -63,10 +63,10 @@ def get_point_data(month, day, hour, lng, lat):
         month = cur_date.month
         day = cur_date.day
         for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
-                                                                           'day': day,
-                                                                           'hour': hour,
-                                                                           'lng_gcj02': round(float(lng), 3),
-                                                                           'lat_gcj02': round(float(lat), 3)}):
+                                                                             'day': day,
+                                                                             'hour': hour,
+                                                                             'lng_gcj02': round(float(lng), 3),
+                                                                             'lat_gcj02': round(float(lat), 3)}):
             num += row['value']
 
         res.append({'month': month, 'day': day, 'val': num})
@@ -85,8 +85,8 @@ def get_top_ten_street(month, day, hour):
 
     position_map = {}
     for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
-                                                                       'day': day,
-                                                                       'hour': hour}):
+                                                                         'day': day,
+                                                                         'hour': hour}):
         key = row['name']
         if key in position_map:
             position_map[key] = position_map[key] + row['value']
