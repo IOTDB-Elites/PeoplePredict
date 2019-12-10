@@ -1,10 +1,10 @@
 from peoplePredict.database.dao import Dao
 from peoplePredict.model.util.dao_service_util import build_position_to_name
 
-POI_DATABASE = ''
-ARIMA_DATABASE = ''
-CORRELATION_DATABSE = ''
-INTEGRATION_DATABASE = ''
+POI_DATABASE = 'poi_model_result'
+ARIMA_DATABASE = 'arima_model_result'
+CORRELATION_DATABSE = 'correlation_model_result'
+INTEGRATION_DATABASE = 'integrated_result'
 
 
 # helper method

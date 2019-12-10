@@ -6,7 +6,7 @@ INVALID = 0
 CURRENT = 1
 PREDICT = 2
 
-PEOPLE_NUM_DATABASE = 'hist_loc_unum'
+INTEGRATION_DATABASE = 'integrated_result'
 
 # env
 dao = Dao()
@@ -22,7 +22,7 @@ def get_map_data(month, day, hour):
 
     # if status == CURRENT:
     res = []
-    for row in dao.read_data_from_target_database(PEOPLE_NUM_DATABASE, {'month': month,
+    for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
                                                                        'day': day,
                                                                        'hour': hour}):
         res.append({'lng': row['lng_gcj02'], 'lat': row['lat_gcj02'], 'val': row['value']})
@@ -41,7 +41,7 @@ def get_radius_data(month, day, hour, lng, lat, radius):
     total_count = 0
     min_lat, max_lat, min_lng, max_lng = get_around(lat, lng, radius)
     # if status == CURRENT:
-    for row in dao.read_data_from_target_database(PEOPLE_NUM_DATABASE, {'month': month,
+    for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
                                                                        'day': day,
                                                                        'hour': hour,
                                                                        'lng_gcj02': {'$gt': min_lng,
@@ -62,7 +62,7 @@ def get_point_data(month, day, hour, lng, lat):
         num = 0
         month = cur_date.month
         day = cur_date.day
-        for row in dao.read_data_from_target_database(PEOPLE_NUM_DATABASE, {'month': month,
+        for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
                                                                            'day': day,
                                                                            'hour': hour,
                                                                            'lng_gcj02': round(float(lng), 3),
@@ -84,7 +84,7 @@ def get_top_ten_street(month, day, hour):
             'Invalid date param. Month: ' + str(month) + ' day: ' + str(day) + ' hour: ' + str(hour))
 
     position_map = {}
-    for row in dao.read_data_from_target_database(PEOPLE_NUM_DATABASE, {'month': month,
+    for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
                                                                        'day': day,
                                                                        'hour': hour}):
         key = row['name']
