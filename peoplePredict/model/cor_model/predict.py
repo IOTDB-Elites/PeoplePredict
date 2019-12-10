@@ -79,10 +79,6 @@ def get_first():
 #     return ((prev[index_list].T * parameter_list[:,0]) + parameter_list[:,1].T).T.astype(np.int32)
 
 
-
-
-
-
 def merge(a, b):
     if a.shape[0] == 0:
         return b
@@ -92,7 +88,8 @@ def merge(a, b):
         return np.c_[a, b]
 
 
-def predict(data1, datamap, model_index_list, m_prev_index_list1, m_prev_index_list2,model_parameter_k, model_parameter_b):
+def predict(data1, datamap, model_index_list, m_prev_index_list1, m_prev_index_list2, model_parameter_k,
+            model_parameter_b):
     p1 = np.zeros((len(m_prev_index_list1), 7))
 
     for i in range(0, p1.shape[0]):
@@ -102,15 +99,16 @@ def predict(data1, datamap, model_index_list, m_prev_index_list1, m_prev_index_l
     for i in range(0, model_index_list.shape[0]):
         t[i] = p1[model_index_list[i]]
 
-    res1 = (t.T*model_parameter_k + model_parameter_b).T
+    res1 = (t.T * model_parameter_k + model_parameter_b).T
     res1 = np.where(res1 > 0, res1, 0)
     map1 = {}
     for i in range(0, len(m_prev_index_list2)):
         map1[m_prev_index_list2[i]] = i
     return res1.astype('int32'), map1
 
+
 def upload_data(matrix, map):
-    DATABASE = 'correlation_model_result'
+    DATABASE = 'correlation_model_result_xkf'
     dao = Dao()
     cache = []
     count = 0
@@ -130,24 +128,28 @@ def upload_data(matrix, map):
                     'month': base_month,
                     'day': base_day + k,
                     'hour': hour,
-                    'lng_gcj02': lng,
-                    'lat_gcj02': lat,
-                    'value': time_matrix[time_map[j]][k]
+                    'lng_gcj02': float(lng),
+                    'lat_gcj02': float(lat),
+                    # 'value': int(time_matrix[time_map[j]][k])
+                    'value': 0
                 }
-                print(item)
                 cache.append(item)
 
+                # print(cache)
                 if len(cache) == 100:
                     count += 100
-                    dao.insert_many(DATABASE, cache)
+                    # dao.insert_many(DATABASE, cache)
+                    try:
+                        dao.insert_many(DATABASE, cache)
+                    except:
+                        print(cache)
+                        exit(-1)
                     cache.clear()
                     if count % 1000 == 0:
                         print(count)
         if len(cache) != 0:
             dao.insert_many(DATABASE, cache)
         dao.close()
-
-
 
 
 # dao.clear_database(DATABASE)
@@ -178,25 +180,19 @@ if __name__ == '__main__':
     first_time = first_time[0]
     map = map[0]
 
-    # print(model_parameter[0][:,0].shape)
-
-    # print(l_prev[0])
-
-    res1, mp1 = predict(first_time, map, model_index[0], l_prev[0], l_prev[1],model_parameter[0][:,0], model_parameter[0][:,1])
+    res1, mp1 = predict(first_time, map, model_index[0], l_prev[0], l_prev[1], model_parameter[0][:, 0],
+                        model_parameter[0][:, 1])
     res2, mp2 = predict(res1, mp1, model_index[1], l_prev[1], l_prev[2], model_parameter[1][:, 0],
                         model_parameter[1][:, 1])
-    res3, mp3=  predict(res2, mp2, model_index[2], l_prev[2], l_prev[3], model_parameter[2][:, 0],
+    res3, mp3 = predict(res2, mp2, model_index[2], l_prev[2], l_prev[3], model_parameter[2][:, 0],
                         model_parameter[2][:, 1])
-    res4, mp4= predict(res3, mp3, model_index[3], l_prev[3], l_prev[4], model_parameter[3][:, 0],
+    res4, mp4 = predict(res3, mp3, model_index[3], l_prev[3], l_prev[4], model_parameter[3][:, 0],
                         model_parameter[3][:, 1])
 
     result = [first_time, res1, res2, res3, res4]
-    result_map = [map, mp1, mp2,mp3, mp4]
+    result_map = [map, mp1, mp2, mp3, mp4]
 
     upload_data(result, result_map)
-
-
-
 
     # print(res2)
     #
@@ -215,10 +211,6 @@ if __name__ == '__main__':
     # for i in range(0, len(l_prev[1])):
     #     map1[l_prev[1][i]] = i
 
-
-
-
-
     #
     #
     #
@@ -230,9 +222,6 @@ if __name__ == '__main__':
     # print(model_index[3].shape)
 
     # print(model_parameter)
-
-
-
 
     # print(m_prev[0].shape)
     # print(m_prev[1].shape)
