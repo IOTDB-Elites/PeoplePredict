@@ -17,7 +17,7 @@ def build_matrix_in_hour(hour):
     # (lat, lng) -> {loc -> val}
     location_array = {}
 
-    for row in dao.read_data_from_target_databse('poi_model_result', {'hour': hour}):
+    for row in dao.read_data_from_target_database('poi_model_result', {'hour': hour}):
         key = str(row['lng_gcj02']) + ',' + str(row['lat_gcj02'])
         loc = to_loc(row['day'])
         if key in location_array:

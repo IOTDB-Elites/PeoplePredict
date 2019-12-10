@@ -23,7 +23,7 @@ def found_nearest(longitude_l, latitude_l, lng, lat):
     loc = 0
     dis = cal_distance(longitude_l[0], latitude_l[0], lng, lat)
     for i in range(1, len(longitude_l)):
-        cur_dis = cal_distance(longitude_l[0], latitude_l[0], lng, lat)
+        cur_dis = cal_distance(longitude_l[i], latitude_l[i], lng, lat)
         if cur_dis < dis:
             loc = i
             dis = cur_dis

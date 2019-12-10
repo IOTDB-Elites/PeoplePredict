@@ -1,13 +1,12 @@
 from pymongo import MongoClient
-from peoplePredict.database.constant import port, uri, join_database, arima_database
-import numpy as np
+from peoplePredict.database.constant import port, uri, join_database, poi_database, people_num_database
 
 
 class Dao:
     def __init__(self):
         self.conn = MongoClient(uri, port=port)
         self.db = self.conn.qh_area_forecast
-        self.people_num_join_poi = self.db[arima_database]
+        self.people_num_join_poi = self.db[join_database]
 
     # use cursor to read
     def read_data(self, filter=None):
@@ -38,7 +37,6 @@ class Dao:
     #         cache.clear()
     #         if count % 1000 == 0:
     #             print(count)
-    #             if len(cache) != 0:
     # if len(cache) != 0:
     #     dao.insert_many(DATABASE, cache)
     # dao.close()
@@ -48,10 +46,15 @@ class Dao:
 
     # clear database
     def clear_database(self, db_name):
+        # security check
+        if db_name == join_database or db_name == poi_database or db_name == people_num_database:
+            print("Delete raw database is forbidden")
+            exit(-1)
+
         self.db[db_name].delete_many({})
 
     # read data from db_name
-    def read_data_from_target_databse(self, db_name, filter=None):
+    def read_data_from_target_database(self, db_name, filter=None):
         if not filter:
             return self.db[db_name].find()
         return self.db[db_name].find(filter)
@@ -66,9 +69,11 @@ if __name__ == '__main__':
     count = 0
     for i in dao.read_data():
         count += 1
-        if count % 1000:
+        if count % 1000 == 0:
             print(i)
-            # break
+
+        if count > 10000000:
+            break
 
     # do not forget this
     print(count)

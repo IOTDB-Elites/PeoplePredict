@@ -18,7 +18,7 @@ def build_data_poi_feature():
     count = 0
     for row in dao.read_data():
         cur_x = [day_to_weekday(row['year'], row['month'], row['day']), row['hour'],
-                 row['lng_gcj02'], row['lat_gcj02'], int(row['typecode'])]
+                 row['lng_gcj02'], row['lat_gcj02'], int(row['typecode'][0:6])]
 
         x.append(cur_x)
         y.append(row['value'])
@@ -51,7 +51,7 @@ def build_predict_data():
 
     count = 0
     for row in dao.read_data():
-        cur_x = (row['lng_gcj02'], row['lat_gcj02'], int(row['typecode']))
+        cur_x = (row['lng_gcj02'], row['lat_gcj02'], int(row['typecode'][0:6]))
         predict_row.add(cur_x)
 
         count += 1
