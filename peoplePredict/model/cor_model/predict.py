@@ -107,8 +107,68 @@ def predict(data1, datamap, model_index_list, m_prev_index_list1, m_prev_index_l
     map1 = {}
     for i in range(0, len(m_prev_index_list2)):
         map1[m_prev_index_list2[i]] = i
-
     return res1.astype('int32'), map1
+
+def upload_data(matrix, map):
+    DATABASE = 'correlation_model_result'
+    dao = Dao()
+    cache = []
+    count = 0
+    # dao.clear_database(DATABASE)
+    hour_list = [7, 12, 15, 20, 21]
+
+    for i in range(0, len(matrix)):
+        time_matrix = matrix[i]
+        time_map = map[i]
+        base_month = 9
+        base_day = 24
+        hour = hour_list[i]
+        for j in time_map:
+            lng, lat = str(j).split(',')
+            for k in range(0, 7):
+                item = {
+                    'month': base_month,
+                    'day': base_day + k,
+                    'hour': hour,
+                    'lng_gcj02': lng,
+                    'lat_gcj02': lat,
+                    'value': time_matrix[time_map[j]][k]
+                }
+                print(item)
+                cache.append(item)
+
+                if len(cache) == 100:
+                    count += 100
+                    dao.insert_many(DATABASE, cache)
+                    cache.clear()
+                    if count % 1000 == 0:
+                        print(count)
+        if len(cache) != 0:
+            dao.insert_many(DATABASE, cache)
+        dao.close()
+
+
+
+
+# dao.clear_database(DATABASE)
+# for row in your_data:
+#     cache.append({'month': 10,
+#                   'day': row[0],
+#                   'hour': row[1],
+#                   'lng_gcj02': row[2],
+#                   'lat_gcj02': row[3],
+#                   'value': row[4])})
+#
+#     if len(cache) == 100:
+#         count += 100
+#         dao.insert_many(DATABASE, cache)
+#         cache.clear()
+#         if count % 1000 == 0:
+#             print(count)
+#             if len(cache) != 0:
+# if len(cache) != 0:
+#     dao.insert_many(DATABASE, cache)
+# dao.close()
 
 if __name__ == '__main__':
     model_index = np.load("../data/correlation_model/model_max_index.npy", allow_pickle=True)
@@ -131,7 +191,13 @@ if __name__ == '__main__':
                         model_parameter[3][:, 1])
 
     result = [first_time, res1, res2, res3, res4]
-    map = [map, mp1, mp2,mp3, mp4]
+    result_map = [map, mp1, mp2,mp3, mp4]
+
+    upload_data(result, result_map)
+
+
+
+
     # print(res2)
     #
     # p1 = np.zeros((m_prev[0].shape[0], 7))
