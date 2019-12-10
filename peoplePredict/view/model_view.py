@@ -6,6 +6,7 @@ from peoplePredict.logic import service
 GET_MAP_DATA_PARAMS = ['month', 'day', 'hour']
 GET_RADIUS_DATA_PARAMS = ['month', 'day', 'hour', 'lng', 'lat', 'radius']
 GET_POINT_DATA_PARAMS = ['month', 'day', 'hour', 'lng', 'lat']
+GET_TOP_TEN_STREET = ['month', 'day', 'hour']
 
 
 def predict(request):
@@ -48,6 +49,16 @@ def get_point_data(request):
     param = request.GET
     return warp_to_response(service.get_point_data(int(param['month']), int(param['day']), int(param['hour']),
                                                    float(param['lng']), float(param['lat'])))
+
+
+def get_top_ten_street(request):
+    # check params
+    error_res = check_param(request, GET_TOP_TEN_STREET)
+    if error_res is not None:
+        return warp_to_response(error_res)
+
+    param = request.GET
+    return warp_to_response(service.get_top_ten_street(int(param['month']), int(param['day']), int(param['hour'])))
 
 
 def check_param(request, params):

@@ -76,6 +76,32 @@ def get_point_data(month, day, hour, lng, lat):
             'data': res}
 
 
+def get_top_ten_street(month, day, hour):
+    status = check_is_valid(month, day, hour)
+
+    if status == INVALID:
+        return build_error_resp(
+            'Invalid date param. Month: ' + str(month) + ' day: ' + str(day) + ' hour: ' + str(hour))
+
+    position_map = {}
+    for row in dao.read_data_from_target_databse(PEOPLE_NUM_DATABASE, {'month': month,
+                                                                       'day': day,
+                                                                       'hour': hour}):
+        key = row['name']
+        if key in position_map:
+            position_map[key] = position_map[key] + row['value']
+        else:
+            position_map[key] = row['value']
+
+    res = []
+    for key in position_map:
+        res.append((key, position_map[key]))
+    res.sort(key=lambda x: x[1])
+
+    return {'success': True,
+            'data': res[0:10]}
+
+
 # helper
 import math
 
