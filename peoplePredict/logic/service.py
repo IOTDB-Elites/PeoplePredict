@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # constant
 import datetime
 from peoplePredict.database.dao import Dao
@@ -96,7 +97,7 @@ def get_top_ten_street(month, day, hour):
     res = []
     for key in position_map:
         res.append((key, position_map[key]))
-    res.sort(key=lambda x: x[1])
+    res.sort(key=lambda x: x[1], reverse=True)
 
     return {'success': True,
             'data': res[0:10]}

@@ -1,3 +1,4 @@
+# -*-coding:utf-8 -*-
 from django.http import HttpResponse
 import json
 
@@ -71,4 +72,4 @@ def check_param(request, params):
 
 
 def warp_to_response(res):
-    return HttpResponse(json.dumps(res))
+    return HttpResponse(json.dumps(res, ensure_ascii=False))

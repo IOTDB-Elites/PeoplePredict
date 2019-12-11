@@ -9,7 +9,9 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
-
+LANGUAGE_CODE = 'zh-hans'
+TIME_ZONE = 'Asia/Shanghai'
+DEFAULT_CHARSET = 'utf-8'
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)

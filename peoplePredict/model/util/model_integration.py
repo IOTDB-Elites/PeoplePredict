@@ -9,17 +9,21 @@ INTEGRATION_DATABASE = 'integrated_result'
 
 # helper method
 def build_key(row):
-    return str(row['lng_gcj02']) + ',' + str(row['lat_gcj02']) + ',' + str(row['day']) + ',' + str(row['hour'])
+    return str(row['lng_gcj02']) + ',' + str(row['lat_gcj02']) + ',' + str(int(float(row['day']))) + ',' + str(
+        int(float(row['hour'])))
 
 
 def read_data_from_database(dao, ratio, res_map, database_name):
+    count = 0
     for row in dao.read_data_from_target_database(database_name):
+        count += 1
         key = build_key(row)
         val = 0
         if key in res_map:
             val += res_map[key]
         res_map[key] = val + row['value'] * ratio
     print("finish reading database: ", database_name)
+    print("total data point: ", count)
 
 
 # main method
@@ -27,6 +31,10 @@ def model_integration(ratio=(0.333, 0.333, 0.333)):
     print('model integration')
 
     dao = Dao()
+    # clear database
+    count = dao.clear_database(INTEGRATION_DATABASE, {'month': 9, 'day': {'$gt': 23}})
+    print('clear count: ', count)
+    #
 
     position_name_map = build_position_to_name()
     res_map = {}
@@ -42,11 +50,11 @@ def model_integration(ratio=(0.333, 0.333, 0.333)):
     for key in res_map:
         col = key.split(',')
         cache.append({'month': 9,
-                      'day': int(col[2]),
-                      'hour': int(col[3]),
+                      'day': int(float(col[2])),
+                      'hour': int(float(col[3])),
                       'lng_gcj02': round(float(col[0]), 3),
                       'lat_gcj02': round(float(col[1]), 3),
-                      'name': position_name_map(col[0] + ',' + col(1)),
+                      'name': position_name_map[col[0] + ',' + col[1]],
                       'value': int(res_map[key])})
         if len(cache) == 100:
             count += 100
@@ -62,6 +70,8 @@ def model_integration(ratio=(0.333, 0.333, 0.333)):
 
 def current_data_integration():
     dao = Dao()
+    # clear database
+    dao.clear_database(INTEGRATION_DATABASE)
     # insert into databse
     print('transfer current data into final database')
     cache = []
@@ -88,6 +98,6 @@ def current_data_integration():
 
 if __name__ == '__main__':
     print('begin integration')
-    current_data_integration()
-    # model_integration()
+    # current_data_integration()
+    model_integration()
     print('integration ends')
