@@ -108,11 +108,11 @@ def predict(data1, datamap, model_index_list, m_prev_index_list1, m_prev_index_l
 
 
 def upload_data(matrix, map):
-    DATABASE = 'correlation_model_result_xkf'
+    DATABASE = 'correlation_model_result'
     dao = Dao()
     cache = []
     count = 0
-    # dao.clear_database(DATABASE)
+    dao.clear_database(DATABASE)
     hour_list = [7, 12, 15, 20, 21]
 
     for i in range(0, len(matrix)):
@@ -125,13 +125,14 @@ def upload_data(matrix, map):
             lng, lat = str(j).split(',')
             for k in range(0, 7):
                 item = {
-                    'month': base_month,
-                    'day': base_day + k,
+                    'year': 2019,
+                    'month': int(base_month),
+                    'day': int(base_day + k),
                     'hour': hour,
-                    'lng_gcj02': float(lng),
-                    'lat_gcj02': float(lat),
-                    # 'value': int(time_matrix[time_map[j]][k])
-                    'value': 0
+                    'lng_gcj02': round(float(lng), 3),
+                    'lat_gcj02': round(float(lat), 3),
+                    'value': int(time_matrix[time_map[j]][k])
+                    # 'value': 0
                 }
                 cache.append(item)
 
@@ -147,30 +148,9 @@ def upload_data(matrix, map):
                     cache.clear()
                     if count % 1000 == 0:
                         print(count)
-        if len(cache) != 0:
-            dao.insert_many(DATABASE, cache)
-        dao.close()
-
-
-# dao.clear_database(DATABASE)
-# for row in your_data:
-#     cache.append({'month': 10,
-#                   'day': row[0],
-#                   'hour': row[1],
-#                   'lng_gcj02': row[2],
-#                   'lat_gcj02': row[3],
-#                   'value': row[4])})
-#
-#     if len(cache) == 100:
-#         count += 100
-#         dao.insert_many(DATABASE, cache)
-#         cache.clear()
-#         if count % 1000 == 0:
-#             print(count)
-#             if len(cache) != 0:
-# if len(cache) != 0:
-#     dao.insert_many(DATABASE, cache)
-# dao.close()
+    if len(cache) != 0:
+        dao.insert_many(DATABASE, cache)
+    dao.close()
 
 if __name__ == '__main__':
     model_index = np.load("../data/correlation_model/model_max_index.npy", allow_pickle=True)
