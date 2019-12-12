@@ -29,7 +29,7 @@ def get_map_data(month, day, hour, aggregate):
             'Invalid date param. Month: ' + str(month) + ' day: ' + str(day) + ' hour: ' + str(hour))
 
     # if status == CURRENT:
-    res = get_aggregate_position(aggregate, day, hour, month)
+    res = get_aggregate_position(month, day, hour, aggregate)
 
     if len(res) == 0:
         return build_error_resp(
@@ -68,19 +68,12 @@ def get_radius_data(month, day, hour, lng, lat, radius, aggregate):
             total_count += row['value']
     elif aggregate == WEEK:
         # 按周聚合查询
-        cur_date = datetime.date(2019, month, day)
-        cur_date -= datetime.timedelta(days=3)
-        for i in range(7):
-            month = cur_date.month
-            day = cur_date.day
-            for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
-                                                                                 'day': day,
-                                                                                 'lng_gcj02': {'$gt': min_lng,
-                                                                                               '$lt': max_lng},
-                                                                                 'lat_gcj02': {'$gt': min_lat,
-                                                                                               '$lt': max_lat}}):
-                total_count += row['value']
-            cur_date += datetime.timedelta(days=1)
+        for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'$or': build_week_filter(month, day),
+                                                                             'lng_gcj02': {'$gt': min_lng,
+                                                                                           '$lt': max_lng},
+                                                                             'lat_gcj02': {'$gt': min_lat,
+                                                                                           '$lt': max_lat}}):
+            total_count += row['value']
     else:
         return build_error_resp(
             'Invalid aggregate param. aggregate: ' + str(aggregate))
@@ -135,7 +128,7 @@ def get_top_ten_street(month, day, hour, aggregate):
         return build_error_resp(
             'Invalid date param. Month: ' + str(month) + ' day: ' + str(day) + ' hour: ' + str(hour))
 
-    res = get_aggregate_position(aggregate, day, hour, month)
+    res = get_aggregate_position(month, day, hour, aggregate)
 
     if len(res) == 0:
         return build_error_resp(
@@ -218,7 +211,8 @@ def to_data(key):
     return round(float(lng), 3), round(float(lat), 3)
 
 
-def get_aggregate_position(aggregate, day, hour, month):
+# 寻找指定聚合方式下，指定月，指定天，指定小时的所有点的聚合值
+def get_aggregate_position(month, day, hour, aggregate):
     res = []
     if aggregate == HOUR:
         for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
@@ -240,24 +234,26 @@ def get_aggregate_position(aggregate, day, hour, month):
     elif aggregate == WEEK:
         # 按周聚合查询
         aggregate_map = {}
-        cur_date = datetime.date(2019, month, day)
-        cur_date -= datetime.timedelta(days=3)
-        res = []
-        for i in range(7):
-            month = cur_date.month
-            day = cur_date.day
-            for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
-                                                                                 'day': day}):
-                key = build_key(row)
-                if key in aggregate_map:
-                    aggregate_map[key] += row['value']
-                else:
-                    aggregate_map[key] = row['value']
+        for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'$or': build_week_filter(month, day)}):
+            key = build_key(row)
+            aggregate_map[key] = aggregate_map.get(key, 0) + row['value']
 
-            cur_date += datetime.timedelta(days=1)
         for key in aggregate_map:
             lng, lat = to_data(key)
             res.append({'lng': lng, 'lat': lat, 'val': aggregate_map[key]})
+    return res
+
+
+def build_week_filter(month, day):
+    cur_date = datetime.date(2019, month, day)
+    cur_date -= datetime.timedelta(days=3)
+    res = []
+    for i in range(7):
+        month = cur_date.month
+        day = cur_date.day
+        res.append({'month': month, 'day': day})
+        cur_date += datetime.timedelta(days=1)
+
     return res
 
 
