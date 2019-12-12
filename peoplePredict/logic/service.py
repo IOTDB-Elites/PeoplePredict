@@ -114,7 +114,7 @@ def get_point_data(month, day, hour, lng, lat, aggregate):
             return build_error_resp(
                 'Invalid aggregate param. aggregate: ' + str(aggregate))
 
-        res.append({'month': month, 'day': day, 'val': num})
+        res.append({'month': month, 'day': day, 'count': num})
         cur_date += datetime.timedelta(days=1)
 
     return {'success': True,
@@ -134,7 +134,7 @@ def get_top_ten_street(month, day, hour, aggregate):
         return build_error_resp(
             'Invalid aggregate param. aggregate: ' + str(aggregate))
 
-    res.sort(key=lambda x: x['val'], reverse=True)
+    res.sort(key=lambda x: x['count'], reverse=True)
 
     out = []
     for i in range(10):
@@ -142,7 +142,7 @@ def get_top_ten_street(month, day, hour, aggregate):
         key = build_key_by_lng_lat(cur['lng'], cur['lat'])
         name = position_name.get(key, '未知地点')
         out.append({'name': name,
-                    'val': cur['val']})
+                    'val': cur['count']})
 
     return {'success': True,
             'data': out}
@@ -218,7 +218,7 @@ def get_aggregate_position(month, day, hour, aggregate):
         for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
                                                                              'day': day,
                                                                              'hour': hour}):
-            res.append({'lng': row['lng_gcj02'], 'lat': row['lat_gcj02'], 'val': row['value']})
+            res.append({'lng': row['lng_gcj02'], 'lat': row['lat_gcj02'], 'count': row['value']})
     elif aggregate == DAY:
         # 按天聚合查询
         aggregate_map = {}
@@ -230,7 +230,7 @@ def get_aggregate_position(month, day, hour, aggregate):
             aggregate_map[key] = row['value']
         for key in aggregate_map:
             lng, lat = to_data(key)
-            res.append({'lng': lng, 'lat': lat, 'val': aggregate_map[key]})
+            res.append({'lng': lng, 'lat': lat, 'count': aggregate_map[key]})
     elif aggregate == WEEK:
         # 按周聚合查询
         aggregate_map = {}
@@ -240,7 +240,7 @@ def get_aggregate_position(month, day, hour, aggregate):
 
         for key in aggregate_map:
             lng, lat = to_data(key)
-            res.append({'lng': lng, 'lat': lat, 'val': aggregate_map[key]})
+            res.append({'lng': lng, 'lat': lat, 'count': aggregate_map[key]})
     return res
 
 
