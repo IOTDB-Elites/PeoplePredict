@@ -48,38 +48,47 @@ def get_radius_data(month, day, hour, lng, lat, radius, aggregate):
 
     total_count = 0
     min_lat, max_lat, min_lng, max_lng = get_around(lat, lng, radius)
+    day_map = {}
     if aggregate == HOUR:
-        for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
-                                                                             'day': day,
+        for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'$or': build_week_filter(month, day),
                                                                              'hour': hour,
                                                                              'lng_gcj02': {'$gt': min_lng,
                                                                                            '$lt': max_lng},
                                                                              'lat_gcj02': {'$gt': min_lat,
                                                                                            '$lt': max_lat}}):
-            total_count += row['value']
+            key = build_date_key(row)
+            day_map[key] = day_map.get(key, 0) + row['value']
     elif aggregate == DAY:
         # 按天聚合查询
-        for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'month': month,
-                                                                             'day': day,
-                                                                             'lng_gcj02': {'$gt': min_lng,
-                                                                                           '$lt': max_lng},
-                                                                             'lat_gcj02': {'$gt': min_lat,
-                                                                                           '$lt': max_lat}}):
-            total_count += row['value']
-    elif aggregate == WEEK:
-        # 按周聚合查询
         for row in dao.read_data_from_target_database(INTEGRATION_DATABASE, {'$or': build_week_filter(month, day),
                                                                              'lng_gcj02': {'$gt': min_lng,
                                                                                            '$lt': max_lng},
                                                                              'lat_gcj02': {'$gt': min_lat,
                                                                                            '$lt': max_lat}}):
-            total_count += row['value']
+            key = build_date_key(row)
+            day_map[key] = day_map.get(key, 0) + row['value']
     else:
         return build_error_resp(
             'Invalid aggregate param. aggregate: ' + str(aggregate))
 
+    min_count = 1000000000
+    max_count = 0
+    num = 0
+    res = []
+    for key in day_map:
+        cur_count = day_map[key]
+        res.append({'month': key[0], 'day': key[1], 'val': cur_count})
+        min_count = min(min_count, cur_count)
+        max_count = max(max_count, cur_count)
+        total_count += cur_count
+        num += 1
+
     return {'success': True,
-            'data': total_count}
+            'data': res,
+            'statistic': {'min': min_count,
+                          'max': max_count,
+                          'avg': total_count / num,
+                          'sum': total_count}}
 
 
 def get_point_data(month, day, hour, lng, lat, aggregate):
@@ -196,6 +205,10 @@ def check_is_valid(month, day, hour):
 def build_error_resp(message='Unknown internal error'):
     return {'success': False,
             'message': message}
+
+
+def build_date_key(row):
+    return row['month'], row['day']
 
 
 def build_key(row):
