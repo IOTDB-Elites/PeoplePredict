@@ -1,15 +1,20 @@
 import numpy as np
 import os
+import pickle
 
 from peoplePredict.database.dao import Dao
 
-DUMP_FILE = '../data/dao_service/position_name_map'
+DUMP_FILE = '../data/dao_service/position_name_map.pkl'
 
 
-def build_position_to_name():
-    if os.path.exists(DUMP_FILE + ".npz"):
-        zip_file = np.load(DUMP_FILE + ".npz", allow_pickle=True)
-        return zip_file['map']
+def build_position_to_name(file_name=None):
+    if file_name is None:
+        file_name = DUMP_FILE
+
+    print(os.path.abspath(file_name))
+    if os.path.exists(file_name):
+        with open(file_name, 'rb') as file:
+            return pickle.load(file)
 
     print("we don't have dump data. build from script, please wait...")
     dao = Dao()
@@ -23,7 +28,12 @@ def build_position_to_name():
         if count % 1000 == 0:
             print(count)
 
-    np.savez(DUMP_FILE, map=position_name_map)
+    with open(DUMP_FILE, 'wb') as file:
+        pickle.dump(position_name_map, file)
 
     dao.close()
     return position_name_map
+
+
+if __name__ == '__main__':
+    build_position_to_name()

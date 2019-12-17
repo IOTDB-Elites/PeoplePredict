@@ -45,13 +45,13 @@ class Dao:
         self.db[db_name].insert_many(data_list)
 
     # clear database
-    def clear_database(self, db_name):
+    def clear_database(self, db_name, filter=None):
         # security check
         if db_name == join_database or db_name == poi_database or db_name == people_num_database:
             print("Delete raw database is forbidden")
             exit(-1)
 
-        self.db[db_name].delete_many({})
+        return self.db[db_name].delete_many({} if filter is None else filter)
 
     # read data from db_name
     def read_data_from_target_database(self, db_name, filter=None):
@@ -67,13 +67,10 @@ class Dao:
 if __name__ == '__main__':
     dao = Dao()
     count = 0
-    for i in dao.read_data():
+    for i in dao.read_data_from_target_database('integrated_result', {'month': 9, 'day': {'$gt': 23}}):
         count += 1
-        if count % 1000 == 0:
+        if count % 10000 == 0:
             print(i)
-
-        if count > 10000000:
-            break
 
     # do not forget this
     print(count)

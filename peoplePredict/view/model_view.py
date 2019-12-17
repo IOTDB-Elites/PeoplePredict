@@ -1,12 +1,13 @@
+# -*-coding:utf-8 -*-
 from django.http import HttpResponse
 import json
 
 from peoplePredict.logic import service
 
-GET_MAP_DATA_PARAMS = ['month', 'day', 'hour']
-GET_RADIUS_DATA_PARAMS = ['month', 'day', 'hour', 'lng', 'lat', 'radius']
-GET_POINT_DATA_PARAMS = ['month', 'day', 'hour', 'lng', 'lat']
-GET_TOP_TEN_STREET = ['month', 'day', 'hour']
+GET_MAP_DATA_PARAMS = ['month', 'day', 'hour', 'aggregate']
+GET_RADIUS_DATA_PARAMS = ['month', 'day', 'hour', 'lng', 'lat', 'radius', 'aggregate']
+GET_POINT_DATA_PARAMS = ['month', 'day', 'hour', 'lng', 'lat', 'aggregate']
+GET_TOP_TEN_STREET = ['month', 'day', 'hour', 'aggregate']
 
 
 def predict(request):
@@ -26,7 +27,8 @@ def get_map_data(request):
         return warp_to_response(error_res)
 
     param = request.GET
-    return warp_to_response(service.get_map_data(int(param['month']), int(param['day']), int(param['hour'])))
+    return warp_to_response(
+        service.get_map_data(int(param['month']), int(param['day']), int(param['hour']), int(param['aggregate'])))
 
 
 def get_radius_data(request):
@@ -37,7 +39,8 @@ def get_radius_data(request):
 
     param = request.GET
     return warp_to_response(service.get_radius_data(int(param['month']), int(param['day']), int(param['hour']),
-                                                    float(param['lng']), float(param['lat']), float(param['radius'])))
+                                                    float(param['lng']), float(param['lat']), float(param['radius']),
+                                                    int(param['aggregate'])))
 
 
 def get_point_data(request):
@@ -48,7 +51,7 @@ def get_point_data(request):
 
     param = request.GET
     return warp_to_response(service.get_point_data(int(param['month']), int(param['day']), int(param['hour']),
-                                                   float(param['lng']), float(param['lat'])))
+                                                   float(param['lng']), float(param['lat']), int(param['aggregate'])))
 
 
 def get_top_ten_street(request):
@@ -58,7 +61,8 @@ def get_top_ten_street(request):
         return warp_to_response(error_res)
 
     param = request.GET
-    return warp_to_response(service.get_top_ten_street(int(param['month']), int(param['day']), int(param['hour'])))
+    return warp_to_response(
+        service.get_top_ten_street(int(param['month']), int(param['day']), int(param['hour']), int(param['aggregate'])))
 
 
 def check_param(request, params):
@@ -71,4 +75,4 @@ def check_param(request, params):
 
 
 def warp_to_response(res):
-    return HttpResponse(json.dumps(res))
+    return HttpResponse(json.dumps(res, ensure_ascii=False))
