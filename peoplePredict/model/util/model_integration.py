@@ -7,6 +7,8 @@ CORRELATION_DATABSE = 'correlation_model_result'
 INTEGRATION_DATABASE = 'integrated_result'
 VIEW_DATABASE = 'view_result'
 
+DISTRICT_DATABASE = 'district_result'
+
 
 # helper method
 def build_key(row):
@@ -97,6 +99,48 @@ def current_data_integration():
     dao.close()
 
 
+def current_data_for_district():
+    dao = Dao()
+    # clear database
+    # dao.clear_database(DISTRICT_DATABASE)
+    # insert into databse
+    print('transfer current data into district database')
+    district_map = {}
+    count = 0
+    for row in dao.read_data():
+        count += 1
+        key = (row['month'], row['day'], row['typecode'], row['adname'])
+        if key in district_map:
+            district_map[key]['value'] += row['value']
+        else:
+            district_map[key] = {'cityname': row['cityname'],
+                                 'type': row['type'],
+                                 'value': row['value']}
+        if count % 10000 == 0:
+            print('read: ', count)
+
+    cache = []
+    count = 0
+    for key in district_map:
+        cache.append({'month': key[0],
+                      'day': key[1],
+                      'cityname': district_map[key]['cityname'],
+                      'adname': key[3],
+                      'type': district_map[key]['type'],
+                      'typecode': key[2],
+                      'value': district_map[key]['value']})
+        if len(cache) == 100:
+            count += 100
+            dao.insert_many(DISTRICT_DATABASE, cache)
+            cache.clear()
+            if count % 10000 == 0:
+                print('write: ', count)
+    if len(cache) != 0:
+        dao.insert_many(DISTRICT_DATABASE, cache)
+
+    dao.close()
+
+
 # for view project
 def find_top_position(top_count):
     dao = Dao()
@@ -152,5 +196,6 @@ if __name__ == '__main__':
     print('begin integration')
     # current_data_integration()
     #  model_integration()
-    find_top_position(1000)
+    # find_top_position(1000)
+    current_data_for_district()
     print('integration ends')

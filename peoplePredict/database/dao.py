@@ -67,7 +67,7 @@ class Dao:
 if __name__ == '__main__':
     dao = Dao()
     count = 0
-    for i in dao.read_data_from_target_database('integrated_result', {'month': 9, 'day': {'$gt': 23}}):
+    for i in dao.read_data_from_target_database(poi_database):
         count += 1
         if count % 10000 == 0:
             print(i)

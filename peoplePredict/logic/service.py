@@ -13,6 +13,7 @@ DAY = 1
 WEEK = 2
 
 INTEGRATION_DATABASE = 'integrated_result'
+DISTRICT_DATABASE = 'district_result'
 DUMP_DATA_FILE = './peoplePredict/model/data/dao_service/position_name_map.pkl'
 
 # env
@@ -151,10 +152,68 @@ def get_top_ten_street(month, day, hour, aggregate):
         key = build_key_by_lng_lat(cur['lng'], cur['lat'])
         name = position_name.get(key, '未知地点')
         out.append({'name': name,
-                    'val': cur['count']})
+                    'val': cur['count'],
+                    'lng': cur['lng'],
+                    'lat': cur['lat']})
 
     return {'success': True,
             'data': out}
+
+
+def get_all_district(month, day):
+    status = check_is_valid(month, day, 7)
+
+    if status == INVALID:
+        return build_error_resp(
+            'Invalid date param. Month: ' + str(month) + ' day: ' + str(day))
+
+    district_map = {}
+    for row in dao.read_data_from_target_database(DISTRICT_DATABASE, {'month': month,
+                                                                      'day': day}):
+        key = row['adname']
+        district_map[key] = district_map.get(key, 0) + row['value']
+
+    out = []
+    for key in district_map:
+        out.append([key, district_map[key] // 5])
+    out.sort(key=lambda x: x[1], reverse=True)
+
+    return {'success': True,
+            'data': out}
+
+
+def get_district_point(name):
+    calendar_map = {}
+    type_map = {}
+    for row in dao.read_data_from_target_database(DISTRICT_DATABASE, {'adname': name}):
+        calendar_key = (row['month'], row['day'])
+        type_key = row['type']
+        calendar_map[calendar_key] = calendar_map.get(calendar_key, 0) + row['value']
+        type_map[type_key] = type_map.get(type_key, 0) + row['value']
+
+    # find top 10 type, and other name
+    type_res = []
+    for key in type_map:
+        type_res.append([key, type_map[key] // 5])
+    type_res.sort(key=lambda x: x[1], reverse=True)
+
+    other_sum = 0
+    for i in range(9, len(type_res)):
+        other_sum += type_res[i][1]
+
+    type_res = type_res[0:9]
+    type_res.append(['其他地点', other_sum])
+    #
+    # build calendar res
+    calendar_res = []
+    for key in calendar_map:
+        calendar_res.append({'month': key[0],
+                             'day': key[1],
+                             'value': calendar_map[key] // 5})
+
+    return {'success': True,
+            'calendar_res': calendar_res,
+            'type_res': type_res}
 
 
 # helper
