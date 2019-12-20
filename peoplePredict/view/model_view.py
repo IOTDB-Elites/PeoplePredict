@@ -11,6 +11,7 @@ GET_TOP_TEN_STREET = ['month', 'day', 'hour', 'aggregate']
 GET_ALL_DISTRICT = ['month', 'day']
 GET_DISTRICT_POINT = ['name']
 GET_DISTRICT_TREEMAP = ['name']
+GET_DISTRICT_LINE = ['name']
 
 
 def predict(request):
@@ -99,6 +100,17 @@ def get_district_treemap(request):
     param = request.GET
     return warp_to_response(
         service.get_district_treemap(param['name']))
+
+
+def get_district_line(request):
+    # check params
+    error_res = check_param(request, GET_DISTRICT_LINE)
+    if error_res is not None:
+        return warp_to_response(error_res)
+
+    param = request.GET
+    return warp_to_response(
+        service.get_district_line(param['name']))
 
 
 def check_param(request, params):

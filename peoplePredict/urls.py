@@ -27,5 +27,6 @@ urlpatterns = [
     path('api/get_top_ten_street/', model_view.get_top_ten_street),
     path('api/get_all_district/', model_view.get_all_district),
     path('api/get_district_point/', model_view.get_district_point),
-    path('api/get_district_treemap/', model_view.get_district_treemap)
+    path('api/get_district_treemap/', model_view.get_district_treemap),
+    path('api/get_district_line/', model_view.get_district_line)
 ]

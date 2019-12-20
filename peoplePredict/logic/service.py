@@ -14,11 +14,17 @@ WEEK = 2
 
 INTEGRATION_DATABASE = 'integrated_result'
 DISTRICT_DATABASE = 'district_result'
+DISTRICT_DATABASE_HOUR = 'district_result_hour'
 DUMP_DATA_FILE = './peoplePredict/model/data/dao_service/position_name_map.pkl'
 
 # env
 dao = Dao()
 position_name = build_position_to_name(DUMP_DATA_FILE)
+pos_map = {7: 1,
+           12: 2,
+           15: 3,
+           20: 4,
+           21: 5}
 
 
 # interface
@@ -189,36 +195,45 @@ def get_all_district(month, day):
 
 def get_district_point(name):
     calendar_map = {}
-    type_map = {}
     for row in dao.read_data_from_target_database(DISTRICT_DATABASE, {'adname': name}):
         calendar_key = (row['month'], row['day'])
-        type_key = row['type']
         calendar_map[calendar_key] = calendar_map.get(calendar_key, 0) + row['value']
-        type_map[type_key] = type_map.get(type_key, 0) + row['value']
 
-    # find top 10 type, and other name
-    type_res = []
-    for key in type_map:
-        type_res.append([key, type_map[key] // 5])
-    type_res.sort(key=lambda x: x[1], reverse=True)
-
-    other_sum = 0
-    for i in range(9, len(type_res)):
-        other_sum += type_res[i][1]
-
-    type_res = type_res[0:9]
-    type_res.append(['其他地点', other_sum])
-    #
     # build calendar res
     calendar_res = []
+    min_val = 10000000
+    max_val = 0
     for key in calendar_map:
-        calendar_res.append({'month': key[0],
-                             'day': key[1],
-                             'value': calendar_map[key] // 5})
+        pad = '-0' if key[1] // 10 == 0 else '-'
+        val = calendar_map[key] // 5
+        calendar_res.append(['2019-0' + str(key[0]) + pad + str(key[1]), val])
+        min_val = min(min_val, val)
+        max_val = max(max_val, val)
 
     return {'success': True,
             'calendar_res': calendar_res,
-            'type_res': type_res}
+            'min_val': min_val,
+            'max_val': max_val}
+
+
+def get_district_line(name):
+    res = [[], [], [], [], [], []]
+
+    cur_date = datetime.date(2019, 8, 20)
+    for i in range(35):
+        res[0].append(cur_date.strftime('%Y-%m-%d'))
+        for j in range(1, 6):
+            res[j].append(0)
+        cur_date += datetime.timedelta(days=1)
+
+    for row in dao.read_data_from_target_database(DISTRICT_DATABASE_HOUR, {'adname': name}):
+        loc = to_loc(row['month'], row['day'])
+        print("!!!!")
+        print(res[pos_map[row['hour']]][loc])
+        res[pos_map[row['hour']]][loc] += row['value']
+
+    return {'success': True,
+            'res': res}
 
 
 def get_district_treemap(name):
@@ -245,14 +260,14 @@ def get_district_treemap(name):
             for small in total_map[big][mid]:
                 val = total_map[big][mid][small]
                 mid_children.append({'name': small,
-                                     'val': val})
+                                     'value': val})
                 mid_sum += val
                 big_sum += val
             big_children.append({'name': mid,
-                                 'val': mid_sum,
+                                 'value': mid_sum,
                                  'children': mid_children})
         res.append({'name': big,
-                    'val': big_sum,
+                    'value': big_sum,
                     'children': big_children})
 
     return {'success': True,
@@ -370,6 +385,12 @@ def build_week_filter(month, day):
         cur_date += datetime.timedelta(days=1)
 
     return res
+
+
+def to_loc(month, day):
+    if month == 8:
+        return day - 20
+    return 11 + day
 
 
 if __name__ == '__main__':

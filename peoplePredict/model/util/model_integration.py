@@ -8,6 +8,7 @@ INTEGRATION_DATABASE = 'integrated_result'
 VIEW_DATABASE = 'view_result'
 
 DISTRICT_DATABASE = 'district_result'
+DISTRICT_DATABASE_HOUR = 'district_result_hour'
 
 
 # helper method
@@ -141,6 +142,49 @@ def current_data_for_district():
     dao.close()
 
 
+def current_data_for_district_hour():
+    dao = Dao()
+    # clear database
+    # dao.clear_database(DISTRICT_DATABASE_HOUR)
+    # insert into databse
+    print('transfer current data into district database')
+    district_map = {}
+    count = 0
+    for row in dao.read_data():
+        count += 1
+        key = (row['month'], row['day'], row['typecode'], row['adname'], row['hour'])
+        if key in district_map:
+            district_map[key]['value'] += row['value']
+        else:
+            district_map[key] = {'cityname': row['cityname'],
+                                 'type': row['type'],
+                                 'value': row['value']}
+        if count % 10000 == 0:
+            print('read: ', count)
+
+    cache = []
+    count = 0
+    for key in district_map:
+        cache.append({'month': key[0],
+                      'day': key[1],
+                      'hour': key[4],
+                      'cityname': district_map[key]['cityname'],
+                      'adname': key[3],
+                      'type': district_map[key]['type'],
+                      'typecode': key[2],
+                      'value': district_map[key]['value']})
+        if len(cache) == 100:
+            count += 100
+            dao.insert_many(DISTRICT_DATABASE_HOUR, cache)
+            cache.clear()
+            if count % 10000 == 0:
+                print('write: ', count)
+    if len(cache) != 0:
+        dao.insert_many(DISTRICT_DATABASE_HOUR, cache)
+
+    dao.close()
+
+
 # for view project
 def find_top_position(top_count):
     dao = Dao()
@@ -197,5 +241,6 @@ if __name__ == '__main__':
     # current_data_integration()
     #  model_integration()
     # find_top_position(1000)
-    current_data_for_district()
+    # current_data_for_district()
+    current_data_for_district_hour()
     print('integration ends')
