@@ -173,10 +173,15 @@ def get_all_district(month, day):
         key = row['adname']
         district_map[key] = district_map.get(key, 0) + row['value']
 
-    out = []
+    list_for_sort = []
     for key in district_map:
-        out.append([key, district_map[key] // 5])
-    out.sort(key=lambda x: x[1], reverse=True)
+        list_for_sort.append([key, district_map[key] // 5])
+    list_for_sort.sort(key=lambda x: x[1], reverse=True)
+
+    out = []
+    for pair in list_for_sort:
+        out.append({'name': pair[0],
+                    'val': pair[1]})
 
     return {'success': True,
             'data': out}
@@ -214,6 +219,44 @@ def get_district_point(name):
     return {'success': True,
             'calendar_res': calendar_res,
             'type_res': type_res}
+
+
+def get_district_treemap(name):
+    total_map = {}
+    for row in dao.read_data_from_target_database(DISTRICT_DATABASE, {'adname': name}):
+        l = list(row['type'].split(';'))
+        while len(l) < 3:
+            l.append('其他')
+
+        big, mid, small = l[0], l[1], l[2]
+        if big not in total_map:
+            total_map[big] = {}
+        if mid not in total_map[big]:
+            total_map[big][mid] = {}
+        total_map[big][mid][small] = total_map[big][mid].get(small, 0) + row['value']
+
+    res = []
+    for big in total_map:
+        big_children = []
+        big_sum = 0
+        for mid in total_map[big]:
+            mid_children = []
+            mid_sum = 0
+            for small in total_map[big][mid]:
+                val = total_map[big][mid][small]
+                mid_children.append({'name': small,
+                                     'val': val})
+                mid_sum += val
+                big_sum += val
+            big_children.append({'name': mid,
+                                 'val': mid_sum,
+                                 'children': mid_children})
+        res.append({'name': big,
+                    'val': big_sum,
+                    'children': big_children})
+
+    return {'success': True,
+            'data': res}
 
 
 # helper
